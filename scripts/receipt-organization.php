@@ -1,15 +1,14 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require dirname(__DIR__, 1).'/base.php';
 
-use App\Services\Core;
-
-$ApiKey = Core::getApiKey();
-
-if(empty($ApiKey))
+if(empty($_SERVER['OPENAI_API_KEY']))
     exit("The API key could not be found!\n");
 
-$Skil = Core::getSkil(pathinfo(__FILE__, PATHINFO_FILENAME));
+if(empty($_SERVER['API_URL']))
+    exit("The API url could not be found!\n");
+
+$Skil = getSkil(pathinfo(__FILE__, PATHINFO_FILENAME));
 
 if(empty($Skil))
     exit("The skil could not be found!\n");
@@ -57,8 +56,8 @@ foreach($Paths as $Path){
     $DataUri = "data:image/$Extension;base64,".base64_encode($Content);
     $Data = ['model' => $Model, 'messages' => [['role' => 'user','content' => [['type' => 'text','text' => $Skil], ['type' => 'image_url', 'image_url' => ['url' => $DataUri]]]]],'max_tokens' => $MaxTokens, "response_format" => ['type' => 'json_object']];
 
-    $Options = ['http' => ['ignore_errors' => true, 'timeout' => 5,'header'  => "Content-type: application/json\r\nAuthorization: Bearer $ApiKey",'method'  => 'POST', 'content' => json_encode($Data)]];
-    $Result = @file_get_contents('https://api.openai.com/v1/chat/completions', false, stream_context_create($Options));
+    $Options = ['http' => ['ignore_errors' => true, 'timeout' => 5,'header'  => "Content-type: application/json\r\nAuthorization: Bearer ".$_SERVER['OPENAI_API_KEY'],'method'  => 'POST', 'content' => json_encode($Data)]];
+    $Result = @file_get_contents($_SERVER['API_URL'].'/v1/chat/completions', false, stream_context_create($Options));
 
     if(empty($Result))
         continue;
