@@ -13,7 +13,9 @@ $Skil = getSkil(pathinfo(__FILE__, PATHINFO_FILENAME));
 if(empty($Skil))
     exit("The skil could not be found!\n");
 
-$Model = 'gpt-4o';
+if(empty($_SERVER['MODEL']))
+    exit("The Model could not be found!\n");
+
 $MaxTokens = 300;
 
 $InputFolder = isset($argv[1]) ? $argv[1] : exit;
@@ -50,7 +52,7 @@ foreach($Paths as $Path){
     $Extension = pathinfo($Path, PATHINFO_EXTENSION);
     $Content = file_get_contents($Path);
     $DataUri = "data:image/$Extension;base64,".base64_encode($Content);
-    $Data = ['model' => $Model, 'messages' => [['role' => 'user','content' => [['type' => 'text','text' => $Skil], ['type' => 'image_url', 'image_url' => ['url' => $DataUri]]]]],'max_tokens' => $MaxTokens, "response_format" => ['type' => 'json_object']];
+    $Data = ['model' => $_SERVER['MODEL'], 'messages' => [['role' => 'user','content' => [['type' => 'text','text' => $Skil], ['type' => 'image_url', 'image_url' => ['url' => $DataUri]]]]],'max_tokens' => $MaxTokens, "response_format" => ['type' => 'json_object']];
 
     $Options = ['http' => ['ignore_errors' => true, 'timeout' => 5,'header'  => "Content-type: application/json\r\nAuthorization: Bearer ".$_SERVER['OPENAI_API_KEY'],'method'  => 'POST', 'content' => json_encode($Data)]];
     $Result = @file_get_contents($_SERVER['API_URL'].'/v1/chat/completions', false, stream_context_create($Options));
