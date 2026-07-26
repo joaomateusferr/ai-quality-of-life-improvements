@@ -22,8 +22,6 @@ $OutputFolder = isset($argv[2]) ? $argv[2] : '';
 if(!is_dir($InputFolder))
     exit("The specified input path does not lead to a folder!\n");
 
-$Last = substr($InputFolder, -1);
-
 if(substr($InputFolder, -1) != '/')
     $InputFolder .= '/';
 
@@ -36,8 +34,6 @@ if(empty($OutputFolder)){
 
     if(!is_dir($OutputFolder))
         exit("The specified input path does not lead to a folder!\n");
-
-    $Last = substr($OutputFolder, -1);
 
     if(substr($OutputFolder, -1) != '/')
         $OutputFolder .= '/';
