@@ -1,20 +1,21 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require dirname(__DIR__, 1).'/base.php';
 
-use App\Services\Core;
-
-$ApiKey = Core::getApiKey();
-
-if(empty($ApiKey))
+if(empty($_SERVER['OPENAI_API_KEY']))
     exit("The API key could not be found!\n");
 
-$Skil = Core::getSkil(pathinfo(__FILE__, PATHINFO_FILENAME));
+if(empty($_SERVER['API_URL']))
+    exit("The API url could not be found!\n");
+
+$Skil = getSkil(pathinfo(__FILE__, PATHINFO_FILENAME));
 
 if(empty($Skil))
     exit("The skil could not be found!\n");
 
-$Model = 'gpt-4o';
+if(empty($_SERVER['MODEL']))
+    exit("The Model could not be found!\n");
+
 $MaxTokens = 300;
 
 $InputFolder = isset($argv[1]) ? $argv[1] : exit;
@@ -22,8 +23,6 @@ $OutputFolder = isset($argv[2]) ? $argv[2] : '';
 
 if(!is_dir($InputFolder))
     exit("The specified input path does not lead to a folder!\n");
-
-$Last = substr($InputFolder, -1);
 
 if(substr($InputFolder, -1) != '/')
     $InputFolder .= '/';
@@ -37,8 +36,6 @@ if(empty($OutputFolder)){
 
     if(!is_dir($OutputFolder))
         exit("The specified input path does not lead to a folder!\n");
-
-    $Last = substr($OutputFolder, -1);
 
     if(substr($OutputFolder, -1) != '/')
         $OutputFolder .= '/';
@@ -55,10 +52,10 @@ foreach($Paths as $Path){
     $Extension = pathinfo($Path, PATHINFO_EXTENSION);
     $Content = file_get_contents($Path);
     $DataUri = "data:image/$Extension;base64,".base64_encode($Content);
-    $Data = ['model' => $Model, 'messages' => [['role' => 'user','content' => [['type' => 'text','text' => $Skil], ['type' => 'image_url', 'image_url' => ['url' => $DataUri]]]]],'max_tokens' => $MaxTokens, "response_format" => ['type' => 'json_object']];
+    $Data = ['model' => $_SERVER['MODEL'], 'messages' => [['role' => 'user','content' => [['type' => 'text','text' => $Skil], ['type' => 'image_url', 'image_url' => ['url' => $DataUri]]]]],'max_tokens' => $MaxTokens, "response_format" => ['type' => 'json_object']];
 
-    $Options = ['http' => ['ignore_errors' => true, 'timeout' => 5,'header'  => "Content-type: application/json\r\nAuthorization: Bearer $ApiKey",'method'  => 'POST', 'content' => json_encode($Data)]];
-    $Result = @file_get_contents('https://api.openai.com/v1/chat/completions', false, stream_context_create($Options));
+    $Options = ['http' => ['ignore_errors' => true, 'timeout' => 5,'header'  => "Content-type: application/json\r\nAuthorization: Bearer ".$_SERVER['OPENAI_API_KEY'],'method'  => 'POST', 'content' => json_encode($Data)]];
+    $Result = @file_get_contents($_SERVER['API_URL'].'/v1/chat/completions', false, stream_context_create($Options));
 
     if(empty($Result))
         continue;

@@ -1,0 +1,78 @@
+{
+  "name": "holerite",
+  "type": "json_schema",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "mes",
+      "tipo",
+      "itens"
+    ],
+    "properties": {
+      "mes": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Mês de competência no formato YYYY-MM."
+      },
+      "tipo": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "pagamento",
+          "adiantamento",
+          null
+        ]
+      },
+      "itens": {
+        "type": "array",
+        "description": "Lista de verbas encontradas no holerite.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "codigo",
+            "descricao",
+            "referencia",
+            "vencimento",
+            "desconto"
+          ],
+          "properties": {
+            "codigo": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "descricao": {
+              "type": "string"
+            },
+            "referencia": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "vencimento": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "desconto": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
