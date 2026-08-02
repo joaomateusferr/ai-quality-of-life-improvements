@@ -19,3 +19,21 @@ function getSkil(string $Name) : string {
     return file_get_contents($SkilPath);
 
 }
+
+function getSchema(string $Name) : array {
+
+    $SchemaPath = $_SERVER['PROJECT_ROOT'].'/schemas/'.$Name.'.json';
+
+    if(!file_exists($SchemaPath))
+        return [];
+
+    $Content = file_get_contents($SchemaPath);
+
+    if(!json_validate($Content))
+        return [];
+
+    $Content = json_decode($Content, true);
+
+    return ['type' => $Content["type"], 'name' => $Content["name"], 'strict' => $Content["strict"],'schema' => $Content["schema"]];
+
+}
